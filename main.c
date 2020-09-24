@@ -9,8 +9,8 @@
 #include <pthread.h>
 #include <cycles.h>
 
-const int iter = 1000;
-const int N    = 10;
+const int iter = 256;
+const int N    = 9;
 
 typedef int (*computation_fn_t)(int);
 
@@ -44,21 +44,26 @@ start_routine(void *arg)
 
 	n = thread_onacci(n);
 
+	pthread_exit((void *)(long)n);
 	/* TODO: How should we return n to the parent thread? */
-
 	return NULL;
 }
 
 int
 thread_onacci(int n)
 {
-//	pthread_t pt1, pt2;
+	pthread_t pt1, pt2;
 	long n1 = n - 1, n2 = n - 2;
 
 	if (n == 0 || n == 1) return n;
 
 	/* TODO: Create a new thread for each recursive call here! */
+	if (pthread_create(&pt1, NULL, start_routine, (void *)n1)) assert(0);
+	if (pthread_create(&pt2, NULL, start_routine, (void *)n2)) assert(0);
 	/* TODO: Wait for the child threads to exit, and get their results */
+
+	pthread_join(pt1, (void **)&n1);
+	pthread_join(pt2, (void **)&n2);
 
 	return n1 + n2;
 }
@@ -127,11 +132,11 @@ main(int argc, char *argv[])
 	(void)argv;
 
 	cycles = benchmark(fib, N, &ret);
-	printf("fib(%d) = %d takes %lld cycles\n", N, ret, cycles);
+	printf("%10lld cycles: fib(%d) = %d\n", cycles, N, ret);
 	cycles = benchmark(thread_onacci, N, &ret);
-	printf("thread_onacci(%d) = %d takes %lld cycles\n", N, ret, cycles);
+	printf("%10lld cycles: thread_onacci(%d) = %d\n", cycles, N, ret);
 	cycles = benchmark(fibork, N, &ret);
-	printf("fibork(%d) = %d takes %lld cycles\n", N, ret, cycles);
+	printf("%10lld cycles: fibork(%d) = %d\n", cycles, N, ret);
 
 	return 0;
 }
