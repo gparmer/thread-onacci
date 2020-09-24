@@ -45,18 +45,22 @@ start_routine(void *arg)
 	n = thread_onacci(n);
 
 	/* TODO: How should we return n to the parent thread? */
+
 	return NULL;
 }
 
 int
 thread_onacci(int n)
 {
+//	pthread_t pt1, pt2;
+	long n1 = n - 1, n2 = n - 2;
+
 	if (n == 0 || n == 1) return n;
 
 	/* TODO: Create a new thread for each recursive call here! */
-
 	/* TODO: Wait for the child threads to exit, and get their results */
-	return 0;
+
+	return n1 + n2;
 }
 
 int
@@ -96,7 +100,7 @@ fibork(int n)
 	wait(&n1);
 	wait(&n2);
 
-	return n1 + n2;
+	return WEXITSTATUS(n1) + WEXITSTATUS(n2);
 }
 
 ps_tsc_t
@@ -124,10 +128,10 @@ main(int argc, char *argv[])
 
 	cycles = benchmark(fib, N, &ret);
 	printf("fib(%d) = %d takes %lld cycles\n", N, ret, cycles);
-	cycles = benchmark(fibork, N, &ret);
-	printf("fibork(%d) = %d takes %lld cycles\n", N, ret, cycles);
 	cycles = benchmark(thread_onacci, N, &ret);
 	printf("thread_onacci(%d) = %d takes %lld cycles\n", N, ret, cycles);
+	cycles = benchmark(fibork, N, &ret);
+	printf("fibork(%d) = %d takes %lld cycles\n", N, ret, cycles);
 
 	return 0;
 }

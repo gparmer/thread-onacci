@@ -6,8 +6,10 @@ CC=gcc
 OPT=-O0
 # generate files that encode make rules for the .h dependencies
 DEPFLAGS=-MP -MD
+LIBS=-lpthread
 # automatically add the -I onto each include directory
 CFLAGS=-Wall -Wextra -g $(foreach D,$(INCDIRS),-I$(D)) $(OPT) $(DEPFLAGS)
+LIBS=-lpthread
 
 # for-style iteration (foreach) and regular expression completions (wildcard)
 CFILES=$(foreach D,$(CODEDIRS),$(wildcard $(D)/*.c))
@@ -18,7 +20,7 @@ DEPFILES=$(patsubst %.c,%.d,$(CFILES))
 all: $(BINARY)
 
 $(BINARY): $(OBJECTS)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ $(LIBS)
 
 # only want the .c file dependency here, thus $< instead of $^.
 #
